@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>1990.04.29</title>
+<title>Life Calendar</title>
 
 <style>
 
@@ -27,6 +27,42 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
+
+    font-family:Arial,sans-serif;
+}
+
+/* 左上角日期选择器 */
+.toolbar{
+    position:fixed;
+
+    top:15px;
+    left:15px;
+
+    z-index:1000;
+
+    background:#fff;
+
+    padding:10px;
+
+    border:1px solid #ddd;
+
+    border-radius:8px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.toolbar label{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.toolbar input{
+    padding:4px 8px;
+    font-size:14px;
 }
 
 /* 52行刚好塞进窗口 */
@@ -71,56 +107,74 @@ body{
 </head>
 <body>
 
+<div class="toolbar">
+    <label for="birthday">出生日期</label>
+    <input
+        type="date"
+        id="birthday"
+        value="1990-04-29">
+</div>
+
 <div class="grid" id="grid"></div>
 
 <script>
 
-// 出生日期
-const birthday = new Date("1990-04-29");
-
-// 假设寿命90岁
 const years = 90;
 const weeksPerYear = 52;
 const totalWeeks = years * weeksPerYear;
 
-// 当前时间
-const now = new Date();
-
-// 已度过周数
-const livedWeeks = Math.floor(
-    (now - birthday) / (7 * 24 * 60 * 60 * 1000)
-);
-
 const grid = document.getElementById("grid");
+const birthdayInput = document.getElementById("birthday");
 
-for(let i = 0; i < totalWeeks; i++){
+function render(){
 
-    const cell = document.createElement("div");
+    grid.innerHTML = "";
 
-    cell.className = "week";
+    const birthday = new Date(birthdayInput.value);
 
-    if(i < livedWeeks){
-        cell.classList.add("past");
+    if(isNaN(birthday.getTime())){
+        return;
     }
 
-    if(i === livedWeeks){
-        cell.classList.add("current");
-    }
+    const now = new Date();
 
-    const weekDate = new Date(
-        birthday.getTime() + i * 7 * 24 * 60 * 60 * 1000
+    const livedWeeks = Math.floor(
+        (now - birthday) / (7 * 24 * 60 * 60 * 1000)
     );
 
-    const age = Math.floor(i / 52);
-    const weekInYear = (i % 52) + 1;
+    for(let i = 0; i < totalWeeks; i++){
 
-    cell.title =
-        `年龄：${age}岁\n` +
-        `第${weekInYear}周\n` +
-        weekDate.toLocaleDateString("zh-CN");
+        const cell = document.createElement("div");
 
-    grid.appendChild(cell);
+        cell.className = "week";
+
+        if(i < livedWeeks){
+            cell.classList.add("past");
+        }
+
+        if(i === livedWeeks){
+            cell.classList.add("current");
+        }
+
+        const weekDate = new Date(
+            birthday.getTime() + i * 7 * 24 * 60 * 60 * 1000
+        );
+
+        const age = Math.floor(i / 52);
+        const weekInYear = (i % 52) + 1;
+
+        cell.title =
+            `年龄：${age}岁\n` +
+            `第${weekInYear}周\n` +
+            weekDate.toLocaleDateString("zh-CN");
+
+        grid.appendChild(cell);
+    }
 }
+
+birthdayInput.addEventListener("input", render);
+
+render();
 
 </script>
 
